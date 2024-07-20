@@ -42,8 +42,10 @@ namespace ego_planner
 
     enum FORMATION_TYPE
     {
-      NONE_FORMATION        = 0,
-      REGULAR_HEXAGON       = 1
+      S_0       = 0,
+      Y_1       = 1,
+      S_2       = 2,
+      U_3       = 3,
     };
 
     int drone_id_;
@@ -92,7 +94,7 @@ namespace ego_planner
 
     typedef std::shared_ptr<PlanningVisualization> Ptr;
 
-    void initSwarmGraphVisual();
+    void initSwarmGraphVisual(int ftype);
 
     void displayMarkerList(ros::Publisher &pub, const vector<Eigen::Vector3d> &list, double scale,
                            Eigen::Vector4d color, int id,  bool show_sphere = true);

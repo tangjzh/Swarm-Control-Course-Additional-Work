@@ -1,0 +1,61 @@
+# rectangle formation yaml
+# global goal setting
+global_goal:
+  swarm_central_pos: {x: 25.0, y: 0.0, z: 0.5}
+  swarm_scale : 2.2
+  relative_pos_0:
+    - {x: 0.0000, y: 0.0000, z: 0.0}
+    - {x: -0.0133, y: -0.0067, z: 0.0}
+    - {x: 0.0000, y: 0.0000, z: 0.0}
+    - {x: 0.9333, y: -1.6867, z: 0.0}
+  relative_pos_1:
+    - {x: 1.7333, y: -1.0000, z: 0.0}
+    - {x: -0.0267, y: -0.9067, z: 0.0}
+    - {x: 1.7333, y: -1.0000, z: 0.0}
+    - {x: 1.7000, y: 0.0867, z: 0.0}
+  relative_pos_2:
+    - {x: 0.0000, y: -2.0000, z: 0.0}
+    - {x: 0.0000, y: -2.0000, z: 0.0}
+    - {x: 0.0000, y: -2.0000, z: 0.0}
+    - {x: -0.0267, y: -2.0067, z: 0.0}
+  relative_pos_3:
+    - {x: -1.7333, y: -1.0000, z: 0.0}
+    - {x: -0.8133, y: 0.9333, z: 0.0}
+    - {x: -1.7333, y: -1.0000, z: 0.0}
+    - {x: -0.9200, y: -1.6200, z: 0.0}
+  relative_pos_4:
+    - {x: -1.7333, y: 1.0000, z: 0.0}
+    - {x: -1.6733, y: 1.8933, z: 0.0}
+    - {x: -1.7333, y: 1.0000, z: 0.0}
+    - {x: -1.7067, y: 0.0067, z: 0.0}
+  relative_pos_5:
+    - {x: 0.0000, y: 2.0000, z: 0.0}
+    - {x: 0.7600, y: 0.9267, z: 0.0}
+    - {x: 0.0000, y: 2.0000, z: 0.0}
+    - {x: -1.7600, y: 1.8400, z: 0.0}
+  relative_pos_6:
+    - {x: 1.7333, y: 1.0000, z: 0.0}
+    - {x: 1.6800, y: 1.9600, z: 0.0}
+    - {x: 1.7333, y: 1.0000, z: 0.0}
+    - {x: 1.7467, y: 1.9333, z: 0.0}
+
+
+
+  # relative_pos_6 : {x: 0, y: 0, z: 0.0} 
+
+# map_size_x          : 70.0
+# map_size_y          : 30.0
+# map_size_z          : 3.0
+optimization:
+  formation_type      : 0
+  weight_obstacle     : 50000.0
+  weight_swarm        : 50000.0
+  weight_feasibility  : 20000.0
+  weight_sqrvariance  : 10000.0
+  weight_time         : 80.0
+  weight_formation    : 10000.0
+  obstacle_clearance  : 0.5
+  swarm_clearance     : 0.5
+
+fsm:
+  replan_trajectory_time : 0.1    # s, the max time of replanning trajectory

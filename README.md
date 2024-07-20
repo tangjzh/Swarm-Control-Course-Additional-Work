@@ -18,6 +18,10 @@ Swarm-Formation 是一个分布式的编队轨迹优化框架，用于密集环�
 
 提交截止时间另行通知。
 
+## 完成结果
+
+![](result_4x.gif)
+
 ## 参考
 
 1. [Distributed Swarm Trajectory Optimization for Formation Flight in Dense Environments](https://arxiv.org/abs/2109.07682), Lun Quan*, Longji Yin*, Chao Xu, and Fei Gao. Accepted in [ICRA2022](https://www.icra2022.org/).

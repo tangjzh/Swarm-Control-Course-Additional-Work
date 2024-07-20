@@ -31,7 +31,7 @@ namespace ego_planner
     
     nh.param("manager/drone_id", drone_id_, -1);
     nh.param("optimization/formation_type", formation_type_, -1);
-    initSwarmGraphVisual();
+    initSwarmGraphVisual(formation_type_);
     swarm_odom.resize(formation_size_);
     for (int i=0; i<formation_size_; i++)
       swarm_odom[i] = Eigen::Vector3d::Zero();
@@ -191,24 +191,82 @@ namespace ego_planner
     swarm_odom[11] << msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z;
   }
 
-  void PlanningVisualization::initSwarmGraphVisual(){
-    switch (formation_type_)
+  void PlanningVisualization::initSwarmGraphVisual(int ftype){
+    switch (ftype)
     {
-    case FORMATION_TYPE::NONE_FORMATION:
+    // case FORMATION_TYPE::NONE_FORMATION:
+    // {
+    //   formation_size_ = 0;
+    //   line_size_      = 0;
+    //   break;
+    // }
+
+    // case FORMATION_TYPE::REGULAR_HEXAGON:
+    // {
+    //   formation_size_ = 7;
+    //   line_size_      = 12;
+    //   line_begin_.resize(line_size_);
+    //   line_end_.resize(line_size_);
+    //   line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
+    //   line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+    //   // line_begin_ = {0, 0, 0, 0, 0, 0};
+    //   // line_end_   = {1, 2, 3, 4, 5, 6};
+      
+    //   break;
+    // }
+
+    case FORMATION_TYPE::S_0:
     {
-      formation_size_ = 0;
-      line_size_      = 0;
+      formation_size_ = 7;
+      line_size_      = 6;
+      line_begin_.resize(line_size_);
+      line_end_.resize(line_size_);
+      // line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
+      // line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+      line_begin_ = {6, 5, 4, 0, 1, 2};
+      line_end_   = {5, 4, 0, 1, 2, 3};
+      
       break;
     }
 
-    case FORMATION_TYPE::REGULAR_HEXAGON:
+    case FORMATION_TYPE::Y_1:
     {
       formation_size_ = 7;
-      line_size_      = 12;
+      line_size_      = 6;
       line_begin_.resize(line_size_);
       line_end_.resize(line_size_);
-      line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
-      line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+      // line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
+      // line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+      line_begin_ = {0, 1, 0, 3, 0, 5};
+      line_end_   = {1, 2, 3, 4, 5, 6};
+      
+      break;
+    }
+
+    case FORMATION_TYPE::S_2:
+    {
+      formation_size_ = 7;
+      line_size_      = 6;
+      line_begin_.resize(line_size_);
+      line_end_.resize(line_size_);
+      // line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
+      // line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+      line_begin_ = {6, 5, 4, 0, 1, 2};
+      line_end_   = {5, 4, 0, 1, 2, 3};
+      
+      break;
+    }
+
+    case FORMATION_TYPE::U_3:
+    {
+      formation_size_ = 7;
+      line_size_      = 6;
+      line_begin_.resize(line_size_);
+      line_end_.resize(line_size_);
+      // line_begin_ = {0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6};
+      // line_end_   = {1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 1};
+      line_begin_ = {0, 0, 1, 2, 3, 4};
+      line_end_   = {1, 2, 6, 3, 4, 5};
       
       break;
     }

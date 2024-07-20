@@ -30,6 +30,9 @@
 #include "visualization_msgs/Marker.h"
 #include "visualization_msgs/MarkerArray.h"
 
+#include <vector>
+#include <deque>
+
 //! @todo historical above
 #include "maps.hpp"
 

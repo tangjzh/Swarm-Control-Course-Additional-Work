@@ -1,9 +1,11 @@
 
 
 #include <plan_manage/ego_replan_fsm.h>
+#include <XmlRpcValue.h>
 
 namespace ego_planner
 {
+
   EGOReplanFSM::~EGOReplanFSM()
   {
     result_file_.close();
@@ -11,6 +13,7 @@ namespace ego_planner
   void EGOReplanFSM::init(ros::NodeHandle &nh)
   {
     current_wp_ = 0;
+    global_counter_ = 0;
     exec_state_ = FSM_EXEC_STATE::INIT;
     have_target_ = false;
     have_odom_ = false;
@@ -31,6 +34,8 @@ namespace ego_planner
     nh.param("fsm/result_file", result_fn_, string("/home/zuzu/Documents/Benchmark/21-RSS-ego-swarm/2.24/ego/ego_swarm.txt"));
     nh.param("fsm/replan_trajectory_time", replan_trajectory_time_, 0.0);
 
+    nh.param("manager/drone_id", drone_id_, 0);
+
     have_trigger_ = !flag_realworld_experiment_;
 
     nh.param("fsm/waypoint_num", waypoint_num_, -1);
@@ -49,11 +54,41 @@ namespace ego_planner
       nh.param("fsm/target" + to_string(i) + "_z", goalpoints_[i][2], -1.0);
     }
 
-    for (int i = 0; i < 7; i++)
-    {
-      nh.param("global_goal/relative_pos_" + to_string(i) + "/x", swarm_relative_pts_[i][0], -1.0);
-      nh.param("global_goal/relative_pos_" + to_string(i) + "/y", swarm_relative_pts_[i][1], -1.0);
-      nh.param("global_goal/relative_pos_" + to_string(i) + "/z", swarm_relative_pts_[i][2], -1.0);
+    // for (int i = 0; i < 7; i++)
+    // {
+    //   nh.param("global_goal/relative_pos_" + to_string(i) + "/0/x", swarm_relative_pts_[i][0], -1.0);
+    //   nh.param("global_goal/relative_pos_" + to_string(i) + "/0/y", swarm_relative_pts_[i][1], -1.0);
+    //   nh.param("global_goal/relative_pos_" + to_string(i) + "/0/z", swarm_relative_pts_[i][2], -1.0);
+    // }
+
+    XmlRpc::XmlRpcValue global_goal_param;
+    if (nh.getParam("global_goal", global_goal_param)) {
+        ROS_ASSERT(global_goal_param.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+        for (XmlRpc::XmlRpcValue::iterator it = global_goal_param.begin(); it != global_goal_param.end(); ++it) {
+            int drone_id = -1;
+            try {
+                std::string drone_id_str = it->first.substr(13); // 提取 'relative_pos_' 之后的部分
+                drone_id = std::stoi(drone_id_str);
+            } catch (const std::invalid_argument& e) {
+                ROS_ERROR("Invalid argument for drone_id: %s", it->first.c_str());
+                continue;
+            } catch (const std::out_of_range& e) {
+                ROS_ERROR("Out of range error for drone_id: %s", it->first.c_str());
+                continue;
+            }
+
+            ROS_ASSERT(it->second.getType() == XmlRpc::XmlRpcValue::TypeArray);
+            for (int i = 0; i < it->second.size(); ++i) {
+                ROS_ASSERT(it->second[i].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+                Goal goal;
+                goal.x = static_cast<double>(it->second[i]["x"]);
+                goal.y = static_cast<double>(it->second[i]["y"]);
+                goal.z = static_cast<double>(it->second[i]["z"]);
+                swarm_relative_pts_[drone_id].push_back(goal);
+            }
+        }
+    } else {
+        ROS_ERROR("Failed to get param 'global_goal'");
     }
 
     nh.param("global_goal/swarm_scale", swarm_scale_, 1.0);
@@ -87,7 +122,9 @@ namespace ego_planner
 
     if (target_type_ == TARGET_TYPE::MANUAL_TARGET)
     {
-      waypoint_sub_ = nh.subscribe("/goal", 1, &EGOReplanFSM::waypointCallback, this);
+      // waypoint_sub_ = nh.subscribe("/goal", 1, &EGOReplanFSM::waypointCallback, this);
+      ROS_INFO("drone_%d bind.", drone_id_);
+      waypoint_sub_ = nh.subscribe("/drone_" + std::to_string(drone_id_) + "/goal", 10, &EGOReplanFSM::waypointCallback, this);
     }
     else if (target_type_ == TARGET_TYPE::PRESET_TARGET)
     {
@@ -392,7 +429,7 @@ namespace ego_planner
     init_pt_ = odom_pos_;
 
     bool success = false;
-    end_pt_ << msg->pose.position.x, msg->pose.position.y, 1.0;
+    end_pt_ << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
 
     std::vector<Eigen::Vector3d> one_pt_wps;
     one_pt_wps.push_back(end_pt_);
@@ -401,7 +438,7 @@ namespace ego_planner
         odom_pos_, odom_vel_, Eigen::Vector3d::Zero(),
         one_pt_wps, Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
-    visualization_->displayGoalPoint(end_pt_, Eigen::Vector4d(0, 0.5, 0.5, 1), 0.3, 0);
+    // visualization_->displayGoalPoint(end_pt_, Eigen::Vector4d(0, 0.5, 0.5, 1), 0.3, 0);
 
     if (success)
     {
@@ -425,7 +462,7 @@ namespace ego_planner
         changeFSMExecState(REPLAN_TRAJ, "TRIG");
 
       // visualization_->displayGoalPoint(end_pt_, Eigen::Vector4d(1, 0, 0, 1), 0.3, 0);
-      visualization_->displayGlobalPathList(gloabl_traj, 0.1, 0);
+      // visualization_->displayGlobalPathList(gloabl_traj, 0.1, 0);
     }
     else
     {
@@ -644,9 +681,11 @@ namespace ego_planner
     int id = planner_manager_->pp_.drone_id;
 
     Eigen::Vector3d relative_pos;
-    relative_pos << swarm_relative_pts_[id][0],
-                    swarm_relative_pts_[id][1],
-                    swarm_relative_pts_[id][2];
+    relative_pos << swarm_relative_pts_[id][global_counter_].x,
+                    swarm_relative_pts_[id][global_counter_].y,
+                    swarm_relative_pts_[id][global_counter_].z;
+    visualization_->initSwarmGraphVisual(global_counter_);
+    global_counter_ = (global_counter_ + 1) % swarm_relative_pts_[0].size();
     end_pt_ = swarm_central_pos_ + swarm_scale_ * relative_pos;
 
     std::vector<Eigen::Vector3d> one_pt_wps;

@@ -27,6 +27,11 @@ using std::vector;
 
 namespace ego_planner
 {
+  struct Goal {
+    double x;
+    double y;
+    double z;
+  };
 
   class EGOReplanFSM
   {
@@ -71,7 +76,8 @@ namespace ego_planner
 
      // global goal setting for swarm
     Eigen::Vector3d swarm_central_pos_;
-    double swarm_relative_pts_[50][3];
+    // double swarm_relative_pts_[50][3];
+    std::map<int, std::vector<Goal>> swarm_relative_pts_;
     double swarm_scale_;
 
     /* planning data */
@@ -89,6 +95,8 @@ namespace ego_planner
 
     bool flag_escape_emergency_;
     bool flag_relan_astar_;
+    int drone_id_;
+    int global_counter_;
 
     GlobalTrajData frontend_traj_;
 
